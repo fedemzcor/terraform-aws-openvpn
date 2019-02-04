@@ -174,7 +174,7 @@ resource "null_resource" "provision_openvpn" {
   triggers {
     subdomain_id = "${aws_route53_record.vpn.id}"
   }
-
+  
   connection {
     type        = "ssh"
     host        = "${aws_instance.openvpn.public_ip}"
@@ -189,8 +189,11 @@ resource "null_resource" "provision_openvpn" {
     destination = "/home/openvpnas/script.sh"
   }
 
+
   provisioner "remote-exec" {
+
     inline = [
+      "sleep 40",
       "chmod +x /home/openvpnas/script.sh",
       "sh /home/openvpnas/script.sh ${var.certificate_email} ${var.subdomain_name}",
     ]
