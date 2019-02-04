@@ -1,43 +1,12 @@
-variable "vpc_cidr_block" {
-  default = "10.0.0.0/16"
-}
 
-variable "subnet_cidr_block" {
-  default = "10.0.0.0/16"
-}
-
-resource "aws_vpc" "main" {
-  cidr_block = "${var.vpc_cidr_block}"
-
-  tags {
-    Name = "openvpn"
-  }
-}
-
-resource "aws_subnet" "vpn_subnet" {
-  vpc_id                  = "${aws_vpc.main.id}"
-  map_public_ip_on_launch = true
-  cidr_block              = "${var.subnet_cidr_block}"
-}
-
-resource "aws_internet_gateway" "gw" {
-  vpc_id = "${aws_vpc.main.id}"
-
-  tags {
-    Name = "Internet Gateway for openvpn"
-  }
-}
 
 resource "aws_eip" "openvpn_eip" {
   vpc        = true
-  depends_on = ["aws_internet_gateway.gw"]
 }
 
-resource "aws_route" "internet_access_openvpn" {
-  route_table_id         = "${aws_vpc.main.main_route_table_id}"
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = "${aws_internet_gateway.gw.id}"
-}
+variable "vpc_id" {}
+
+variable "subnet_id" {}
 
 variable "public_key" {}
 
@@ -45,7 +14,7 @@ variable "private_key" {}
 
 resource "aws_key_pair" "openvpn" {
   key_name   = "openvpn-key"
-  public_key = "${var.public_key}"
+  public_key = "${file(var.public_key)}"
 }
 
 variable "ssh_user" {
@@ -64,10 +33,16 @@ variable "https_port" {
   default = 443
 }
 
+variable "http_port" {
+  default = 80
+}
 variable "https_cidr" {
   default = "0.0.0.0/0"
 }
 
+variable "http_cidr" {
+  default = "0.0.0.0/0"
+}
 variable "tcp_port" {
   default = 943
 }
@@ -87,7 +62,7 @@ variable "udp_cidr" {
 resource "aws_security_group" "openvpn" {
   name        = "openvpn_sg"
   description = "Allow traffic needed by openvpn"
-  vpc_id      = "${aws_vpc.main.id}"
+  vpc_id      = "${var.vpc_id}"
 
   // ssh
   ingress {
@@ -95,6 +70,14 @@ resource "aws_security_group" "openvpn" {
     to_port     = "${var.ssh_port}"
     protocol    = "tcp"
     cidr_blocks = ["${var.ssh_cidr}"]
+  }
+
+  // http
+  ingress {
+    from_port   = "${var.http_port}"
+    to_port     = "${var.http_port}"
+    protocol    = "tcp"
+    cidr_blocks = ["${var.http_cidr}"]
   }
 
   // https
@@ -154,7 +137,7 @@ variable "ami" {
 }
 
 variable "instance_type" {
-  default = "t2.medium"
+  default = "t2.micro"
 }
 
 variable "admin_user" {
@@ -173,7 +156,7 @@ resource "aws_instance" "openvpn" {
   ami                         = "${var.ami}"
   instance_type               = "${var.instance_type}"
   key_name                    = "${aws_key_pair.openvpn.key_name}"
-  subnet_id                   = "${aws_subnet.vpn_subnet.id}"
+  subnet_id                   = "${var.subnet_id}"
   vpc_security_group_ids      = ["${aws_security_group.openvpn.id}"]
   associate_public_ip_address = true
 
@@ -197,21 +180,20 @@ resource "null_resource" "provision_openvpn" {
     host        = "${aws_instance.openvpn.public_ip}"
     user        = "${var.ssh_user}"
     port        = "${var.ssh_port}"
-    private_key = "${var.private_key}"
+    private_key = "${file(var.private_key)}"
     agent       = false
+  }
+
+  provisioner "file" {
+    source      = "script.sh"
+    destination = "/home/openvpnas/script.sh"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "sudo apt-get install -y curl vim libltdl7 python3 python3-pip python software-properties-common unattended-upgrades",
-      "sudo add-apt-repository -y ppa:certbot/certbot",
-      "sudo apt-get -y update",
-      "sudo apt-get -y install python-certbot certbot",
-      "sudo service openvpnas stop",
-      "sudo certbot certonly --standalone --non-interactive --agree-tos --email ${var.certificate_email} --domains ${var.subdomain_name} --pre-hook 'service openvpnas stop' --post-hook 'service openvpnas start'",
-      "sudo ln -s -f /etc/letsencrypt/live/${var.subdomain_name}/cert.pem /usr/local/openvpn_as/etc/web-ssl/server.crt",
-      "sudo ln -s -f /etc/letsencrypt/live/${var.subdomain_name}/privkey.pem /usr/local/openvpn_as/etc/web-ssl/server.key",
-      "sudo service openvpnas start",
+      "chmod +x /home/openvpnas/script.sh",
+      "sh /home/openvpnas/script.sh ${var.certificate_email} ${var.subdomain_name}",
     ]
   }
+  
 }
