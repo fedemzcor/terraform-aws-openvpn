@@ -133,7 +133,7 @@ resource "aws_route53_record" "vpn" {
 }
 
 variable "ami" {
-  default = "ami-f53d7386" // ubuntu xenial openvpn ami in eu-west-1
+  default = "ami-07a8d85046c8ecc99" // ubuntu xenial openvpn ami in eu-west-1
 }
 
 variable "instance_type" {
