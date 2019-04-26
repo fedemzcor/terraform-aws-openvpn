@@ -193,7 +193,7 @@ resource "null_resource" "provision_openvpn" {
   provisioner "remote-exec" {
 
     inline = [
-      "sleep 40",
+      "sleep 240",
       "chmod +x /home/openvpnas/script.sh",
       "sh /home/openvpnas/script.sh ${var.certificate_email} ${var.subdomain_name}",
     ]

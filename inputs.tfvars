@@ -10,9 +10,9 @@ private_key = "~/.ssh/id_rsa"
 
 certificate_email = "dev@fedecode.me"
 
-route53_zone_name = "gospik.space."
+route53_zone_name = "rupell.cloud."
 
-subdomain_name = "vpn.gospik.space"
+subdomain_name = "vpn.rupell.cloud"
 
 vpc_id      =   "vpc-0767d752893c43e63"
 
