@@ -189,11 +189,12 @@ resource "null_resource" "provision_openvpn" {
     destination = "/home/openvpnas/script.sh"
   }
 
+  provisioner "local-exec" {
+    command = "sleep 240"
+  }
 
   provisioner "remote-exec" {
 
-  
-    command = "sleep 250"
 
     inline = [
       "sleep 740",
