@@ -17,4 +17,3 @@ crontab -l > certbot
 echo "45 2 * * 6 sudo certbot renew --pre-hook 'service openvpnas stop' --post-hook 'service openvpnas start'" >> certbot
 #install new cron file
 crontab certbot
-rm certbot
