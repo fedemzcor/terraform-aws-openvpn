@@ -121,7 +121,7 @@ variable "subdomain_ttl" {
 }
 
 data "aws_route53_zone" "main" {
-  name = "${var.route53_zone_name}"
+  name = "${var.route53_zone_name}."
 }
 
 resource "aws_route53_record" "vpn" {

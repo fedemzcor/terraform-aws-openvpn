@@ -1,6 +1,3 @@
-aws_profile_name = "default"
-
-aws_region = "us-east-1"
 
 ami = "ami-07a8d85046c8ecc99" # NOTE: amis are region specific, and listed at https://aws.amazon.com/marketplace/fulfillment?productId=fe8020db-5343-4c43-9e65-5ed4a825c931&ref_=dtl_psb_continue - click the 'launch manual' button
 
@@ -10,7 +7,7 @@ private_key = "~/.ssh/id_rsa"
 
 certificate_email = "dev@fedecode.me"
 
-route53_zone_name = "rupell.cloud."
+route53_zone_name = "rupell.cloud"
 
 subdomain_name = "vpn.rupell.cloud"
 
