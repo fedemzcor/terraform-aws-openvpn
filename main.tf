@@ -186,7 +186,7 @@ resource "null_resource" "provision_openvpn" {
 
   provisioner "file" {
     source      = "${path.module}/script.sh"
-    destination = "/home/openvpnas"
+    destination = "/home/openvpnas/script.sh"
   }
 
 
