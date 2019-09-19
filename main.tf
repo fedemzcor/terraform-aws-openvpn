@@ -189,6 +189,12 @@ resource "null_resource" "provision_openvpn" {
     destination = "/home/openvpnas/script.sh"
   }
 
+   provisioner "file" {
+    source      = "${file("${path.module}/cron")}"
+    destination = "/home/openvpnas/cron"
+  }
+
+
 
   provisioner "remote-exec" {
 
@@ -196,6 +202,8 @@ resource "null_resource" "provision_openvpn" {
       "sleep 240",
       "chmod +x /home/openvpnas/script.sh",
       "sh /home/openvpnas/script.sh ${var.certificate_email} ${var.subdomain_name}",
+      "chmod +x /home/openvpnas/cron",
+      "crontab /home/openvpnas/cron",
     ]
   }
   
