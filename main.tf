@@ -185,15 +185,15 @@ resource "null_resource" "provision_openvpn" {
   }
 
   provisioner "file" {
-    source      = "./script.sh"
-    destination = "/home/openvpnas/script.sh"
+    source      = "${file("${path.module}/script.sh")}"
+    destination = "/home/openvpnas"
   }
 
 
   provisioner "remote-exec" {
 
     inline = [
-      "sleep 240",
+      "sleep 440",
       "chmod +x /home/openvpnas/script.sh",
       "sh /home/openvpnas/script.sh ${var.certificate_email} ${var.subdomain_name}",
     ]
