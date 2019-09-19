@@ -12,6 +12,7 @@ sudo ln -s -f /etc/letsencrypt/live/$2/cert.pem /usr/local/openvpn_as/etc/web-ss
 sudo ln -s -f /etc/letsencrypt/live/$2/privkey.pem /usr/local/openvpn_as/etc/web-ssl/server.key
 sudo service openvpnas start
 #write out current crontab
+touch certbot
 crontab -l > certbot
 #echo new cron into cron file
 echo "45 2 * * 6 sudo certbot renew --pre-hook 'service openvpnas stop' --post-hook 'service openvpnas start'" >> certbot
