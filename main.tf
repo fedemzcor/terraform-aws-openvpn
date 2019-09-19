@@ -149,7 +149,7 @@ variable "admin_password" {
 }
 
 resource "aws_instance" "openvpn" {
-  tags {
+  tags = {
     Name = "openvpn"
   }
 
