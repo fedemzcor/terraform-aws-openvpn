@@ -171,7 +171,7 @@ USERDATA
 variable "certificate_email" {}
 
 resource "null_resource" "provision_openvpn" {
-  triggers {
+  triggers = {
     subdomain_id = "${aws_route53_record.vpn.id}"
   }
   
