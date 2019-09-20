@@ -4,60 +4,13 @@ resource "aws_eip" "openvpn" {
   vpc        = true
 }
 
-variable "vpc_id" {}
-
-variable "subnet_id" {}
-
-variable "public_key" {}
-
-variable "private_key" {}
 
 resource "aws_key_pair" "openvpn" {
   key_name   = "openvpn-key"
   public_key = "${file(var.public_key)}"
 }
 
-variable "ssh_user" {
-  default = "openvpnas"
-}
 
-variable "ssh_port" {
-  default = 22
-}
-
-variable "ssh_cidr" {
-  default = "0.0.0.0/0"
-}
-
-variable "https_port" {
-  default = 443
-}
-
-variable "http_port" {
-  default = 80
-}
-variable "https_cidr" {
-  default = "0.0.0.0/0"
-}
-
-variable "http_cidr" {
-  default = "0.0.0.0/0"
-}
-variable "tcp_port" {
-  default = 943
-}
-
-variable "tcp_cidr" {
-  default = "0.0.0.0/0"
-}
-
-variable "udp_port" {
-  default = 1194
-}
-
-variable "udp_cidr" {
-  default = "0.0.0.0/0"
-}
 
 resource "aws_security_group" "openvpn" {
   name        = "openvpn_sg"
@@ -113,17 +66,6 @@ resource "aws_security_group" "openvpn" {
   }
 }
 
-variable "route53_zone_name" {}
-variable "subdomain_name" {}
-
-variable "subdomain_ttl" {
-  default = "60"
-}
-
-data "aws_route53_zone" "main" {
-  name = "${var.route53_zone_name}."
-}
-
 resource "aws_route53_record" "vpn" {
   zone_id = "${data.aws_route53_zone.main.zone_id}"
   name    = "${var.subdomain_name}"
@@ -132,21 +74,6 @@ resource "aws_route53_record" "vpn" {
   records = ["${aws_eip.openvpn.public_ip}"] // ["${aws_instance.openvpn.public_ip}"]
 }
 
-variable "ami" {
-  default = "ami-07a8d85046c8ecc99" // ubuntu xenial openvpn ami in eu-west-1
-}
-
-variable "instance_type" {
-  default = "t2.micro"
-}
-
-variable "admin_user" {
-  default = "openvpn"
-}
-
-variable "admin_password" {
-  default = "openvpn"
-}
 
 resource "aws_instance" "openvpn" {
   tags = {
@@ -173,7 +100,7 @@ resource "aws_eip_association" "eip_assoc" {
   allocation_id = "${aws_eip.openvpn.id}"
 }
 
-variable "certificate_email" {}
+
 
 resource "null_resource" "provision_openvpn" {
 
