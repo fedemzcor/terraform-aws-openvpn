@@ -4,7 +4,6 @@ resource "aws_eip" "openvpn" {
   vpc        = true
 }
 
-
 resource "aws_key_pair" "openvpn" {
   key_name   = "openvpn-key"
   public_key = "${file(var.public_key)}"
@@ -96,6 +95,9 @@ USERDATA
 }
 
 resource "aws_eip_association" "eip_assoc" {
+
+   depends_on = ["aws_instance.openvpn"]
+
   instance_id   = "${aws_instance.openvpn.id}"
   allocation_id = "${aws_eip.openvpn.id}"
 }
