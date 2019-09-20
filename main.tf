@@ -129,7 +129,7 @@ resource "aws_route53_record" "vpn" {
   name    = "${var.subdomain_name}"
   type    = "A"
   ttl     = "${var.subdomain_ttl}"
-  records = ["${aws_eip.openvpn.public_id}"] // ["${aws_instance.openvpn.public_ip}"]
+  records = ["${aws_eip.openvpn.public_ip}"] // ["${aws_instance.openvpn.public_ip}"]
 }
 
 variable "ami" {
@@ -178,7 +178,7 @@ variable "certificate_email" {}
 resource "null_resource" "provision_openvpn" {
 
   depends_on = ["aws_eip_association.eip_assoc"]
-  
+
   triggers = {
     subdomain_id = "${aws_route53_record.vpn.id}"
   }
