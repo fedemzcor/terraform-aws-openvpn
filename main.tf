@@ -177,7 +177,7 @@ variable "certificate_email" {}
 
 resource "null_resource" "provision_openvpn" {
 
-  #depends_on = ["aws_instance.openvpn","aws_eip_association.eip_assoc"]
+  depends_on = ["aws_instance.openvpn","aws_eip_association.eip_assoc"]
 
   triggers = {
     subdomain_id = "${aws_route53_record.vpn.id}"
