@@ -110,6 +110,7 @@ resource "null_resource" "provision_openvpn" {
 
   triggers = {
     subdomain_id = "${aws_route53_record.vpn.id}"
+    instance_id   = "${aws_instance.openvpn.id}"
   }
   
   connection {
