@@ -1,6 +1,6 @@
 
 
-resource "aws_eip" "openvpn_eip" {
+resource "aws_eip" "openvpn" {
   vpc        = true
 }
 
@@ -129,7 +129,7 @@ resource "aws_route53_record" "vpn" {
   name    = "${var.subdomain_name}"
   type    = "A"
   ttl     = "${var.subdomain_ttl}"
-  records = ["${aws_instance.openvpn.public_ip}"]
+  records = ["${aws_eip.openvpn.public_id}"] // ["${aws_instance.openvpn.public_ip}"]
 }
 
 variable "ami" {
@@ -158,7 +158,7 @@ resource "aws_instance" "openvpn" {
   key_name                    = "${aws_key_pair.openvpn.key_name}"
   subnet_id                   = "${var.subnet_id}"
   vpc_security_group_ids      = ["${aws_security_group.openvpn.id}"]
-  associate_public_ip_address = true
+  associate_public_ip_address = false
 
   # `admin_user` and `admin_pw` need to be passed in to the appliance through `user_data`, see docs -->
   # https://docs.openvpn.net/how-to-tutorialsguides/virtual-platforms/amazon-ec2-appliance-ami-quick-start-guide/
@@ -168,16 +168,24 @@ admin_pw=${var.admin_password}
 USERDATA
 }
 
+resource "aws_eip_association" "eip_assoc" {
+  instance_id   = "${aws_instance.openvpn.id}"
+  allocation_id = "${aws_eip.openvpn.id}"
+}
+
 variable "certificate_email" {}
 
 resource "null_resource" "provision_openvpn" {
+
+  depends_on = ["aws_eip_association.eip_assoc"]
+  
   triggers = {
     subdomain_id = "${aws_route53_record.vpn.id}"
   }
   
   connection {
     type        = "ssh"
-    host        = "${aws_instance.openvpn.public_ip}"
+    host        = "${aws_eip.openvpn.public_ip}"
     user        = "${var.ssh_user}"
     port        = "${var.ssh_port}"
     private_key = "${file(var.private_key)}"
