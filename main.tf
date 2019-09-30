@@ -4,12 +4,13 @@ resource "aws_eip" "openvpn" {
   vpc        = true
 }
 
+/*
 resource "aws_key_pair" "openvpn" {
   key_name   = "openvpn-key"
   public_key = "${file(var.public_key)}"
 }
 
-
+*/
 
 resource "aws_security_group" "openvpn" {
   name        = "openvpn_sg"
